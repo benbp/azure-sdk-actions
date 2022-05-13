@@ -1,0 +1,13 @@
+name: Reusable Workflow Test
+
+on:
+  workflow_call:
+
+jobs:
+  issue-comment:
+    name: Evaluate Issue Comment
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test
+      run: echo foobar
+
