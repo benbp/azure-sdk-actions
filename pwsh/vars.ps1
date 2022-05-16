@@ -1,0 +1,25 @@
+$BASE_SCHEME = "https"
+$BASE_HOST = "api.github.com"
+
+$GithubTokenKey = "GITHUB_TOKEN"
+$CommitStatusContext = "https://aka.ms/azsdk/checkenforcer"
+$AzurePipelinesAppName = "Azure Pipelines"
+
+$CommitStatePending = "pending"
+$CommitStateSuccess = "success"
+$CommitStateFailure = "failure"
+$CommitStateError   = "error"
+
+$CheckSuiteActionCompleted  = "completed"
+$IssueCommentActionCreated  = "created"
+$CheckSuiteStatusRequested  = "requested"
+$CheckSuiteStatusInProgress = "in_progress"
+$CheckSuiteStatusCompleted  = "completed"
+ 
+$CheckSuiteConclusionSuccess        = "success"
+$CheckSuiteConclusionFailure        = "failure"
+$CheckSuiteConclusionNeutral        = "neutral"
+$CheckSuiteConclusionCancelled      = "cancelled"
+$CheckSuiteConclusionTimedOut       = "timed_out"
+$CheckSuiteConclusionActionRequired = "action_required"
+$CheckSuiteConclusionStale          = "stale"
