@@ -11,8 +11,8 @@ runs:
         echo "Handle webhook event..."
         cd $GITHUB_ACTION_PATH
         echo "$GITHUB_PAYLOAD" > ./github_payload.json
-        go run . ./github_payload.json
-      shell: bash
+        ./pwsh/main.ps1 ./github_payload.json
+      shell: pwsh
       env:
         GITHUB_PAYLOAD: ${{ toJson(github.event) }}
         GITHUB_TOKEN: ${{ inputs.token }}

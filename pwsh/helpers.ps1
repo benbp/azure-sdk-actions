@@ -5,7 +5,7 @@ function sanitizeComment([string]$comment) {
     $comment = $comment.Trim()
     foreach ($c in $comment.ToCharArray()) {
         if ($c -match "[a-zA-Z0-9\s/-]") {
-            $result += $c.ToLowerInvariant()
+            $result += $c.ToString().ToLowerInvariant()
         }
     }
     return $result
@@ -44,7 +44,7 @@ function getUri([string]$target) {
 
 function getPullRequest([string]$url) {
     $uri = getUri $url
-    $resp = /usr/bin/gh api $uri.Uri.AbsoluteUri
+    $resp = gh api $uri.Uri.AbsoluteUri
     if ($LASTEXITCODE) {
         throw "gh client failed with code $LASTEXITCODE"
     }
@@ -63,7 +63,7 @@ function getCheckSuiteStatusFromPullRequest([hashtable]$pr) {
     $csUrl = getCheckSuiteStatusFromPullRequest $pr
     $uri = getUrl $csUrl
 
-    $resp = /usr/bin/gh api $uri.Uri.AbsoluteUri
+    $resp = gh api $uri.Uri.AbsoluteUri
     if ($LASTEXITCODE) {
         throw "gh client failed with code $LASTEXITCODE"
     }
@@ -78,7 +78,7 @@ function getCheckSuiteStatusFromPullRequest([hashtable]$pr) {
 }
 
 function postCommitStatus([string]$url, [object]$body) {
-    /usr/bin/gh api `
+    gh api `
         --method POST `
         -H "Accept: application/vnd.github.v3+json" `
         $url `
