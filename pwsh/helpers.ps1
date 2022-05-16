@@ -48,8 +48,7 @@ function getPullRequest([string]$url) {
     if ($LASTEXITCODE) {
         throw "gh client failed with code $LASTEXITCODE"
     }
-    Write-Host $resp
-    return $resp | ConvertFrom-Json -AsHashtable -Depth 1
+    return $resp | ConvertFrom-Json -AsHashtable -Depth 100
 }
 
 function getPullsUrlFromIssueComment([hashtable]$ic) {
@@ -61,8 +60,8 @@ function getCheckSuiteUrlFromPullRequest([hashtable]$pr) {
 }
 
 function getCheckSuiteStatusFromPullRequest([hashtable]$pr) {
-    $csUrl = getCheckSuiteStatusFromPullRequest $pr
-    $uri = getUrl $csUrl
+    $csUrl = getCheckSuiteUrlFromPullRequest $pr
+    $uri = getUri $csUrl
 
     $resp = gh api $uri.Uri.AbsoluteUri
     if ($LASTEXITCODE) {
