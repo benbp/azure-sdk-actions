@@ -4,10 +4,24 @@ on:
   workflow_call:
 
 jobs:
-  issue-comment:
-    name: Evaluate Issue Comment
+  handle_event:
+    name: ${{ github.event_name }}
     runs-on: ubuntu-latest
     steps:
-    - name: Test
-      run: echo foobar
+      - run: |
+          echo "Handle webhook event..."
+          echo "Action Path: $GITHUB_ACTION_PATH"
+          echo "pwd"
+          pwd
+          echo "ls"
+          ls
+          echo "RECURSE"
+          echo ls -R
+          echo "ACTION PATH LS"
+          cd $GITHUB_ACTION_PATH
+          ls
 
+          cd $GITHUB_ACTION_PATH/src
+          echo "$GITHUB_PAYLOAD" > ./github_payload.json
+          go run . ./github_payload.json
+        shell: bash
