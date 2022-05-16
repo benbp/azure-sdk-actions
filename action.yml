@@ -1,12 +1,5 @@
-name: 'Azure SDK Action'
-description: 'Handle github event'
-inputs:
-  payload:
-    description: 'GitHub event payload'
-    required: true
-  token:
-    description: 'Github event token'
-    required: true
+name: 'Azure SDK GitHub Event Handler'
+description: 'Handle GitHub event'
 runs:
   using: "composite"
   steps:
@@ -17,5 +10,5 @@ runs:
         go run . ./github_payload.json
       shell: bash
       env:
-        GITHUB_PAYLOAD: ${{ inputs.payload }}
-        GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_PAYLOAD: ${{ toJson(github.event) }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
