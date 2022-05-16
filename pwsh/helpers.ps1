@@ -48,7 +48,8 @@ function getPullRequest([string]$url) {
     if ($LASTEXITCODE) {
         throw "gh client failed with code $LASTEXITCODE"
     }
-    return $resp | ConvertFrom-Json -AsHashtable
+    Write-Host $resp
+    return $resp | ConvertFrom-Json -AsHashtable -Depth 1
 }
 
 function getPullsUrlFromIssueComment([hashtable]$ic) {
