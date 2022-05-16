@@ -6,6 +6,9 @@ runs:
     - run: |
         echo "Handle webhook event..."
         cd $GITHUB_ACTION_PATH/src
+        echo "-----------------"
+        echo "$GITHUB_PAYLOAD"
+        echo "-----------------"
         echo "$GITHUB_PAYLOAD" > ./github_payload.json
         go run . ./github_payload.json
       shell: bash
