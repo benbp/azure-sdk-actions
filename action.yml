@@ -9,9 +9,10 @@ runs:
   steps:
     - run: |
         echo "Handle webhook event..."
-        cd $GITHUB_ACTION_PATH
-        echo "$GITHUB_PAYLOAD" > ./github_payload.json
-        ./pwsh/main.ps1 ./github_payload.json
+        cd $env:GITHUB_ACTION_PATH
+        cd pwsh
+        echo "$($env:GITHUB_PAYLOAD)" > ./github_payload.json
+        ./main.ps1 ./github_payload.json
       shell: pwsh
       env:
         GITHUB_PAYLOAD: ${{ toJson(github.event) }}

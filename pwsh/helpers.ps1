@@ -1,4 +1,4 @@
-. ./vars.ps1
+. $PSScriptRoot/vars.ps1
 
 function sanitizeComment([string]$comment) {
     $result = ""
