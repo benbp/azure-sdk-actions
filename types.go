@@ -15,6 +15,8 @@ const (
 	CheckSuiteActionCompleted ActionType = "completed"
 
 	IssueCommentActionCreated ActionType = "created"
+	PullRequestActionOpened   ActionType = "opened"
+	PullRequestActionReOpened ActionType = "reopened"
 
 	CheckSuiteStatusRequested  CheckSuiteStatus = "requested"
 	CheckSuiteStatusInProgress CheckSuiteStatus = "in_progress"
@@ -56,10 +58,6 @@ type PullRequest struct {
 	Base struct {
 		Repo Repo `json:"repo"`
 	} `json:"base"`
-}
-
-func (pr *PullRequest) GetStatusesUrl() string {
-	return pr.StatusesUrl
 }
 
 type Repo struct {
