@@ -75,6 +75,33 @@ func (gh *GithubClient) SetStatus(statusUrl string, status StatusBody) error {
 	return nil
 }
 
+func (gh *GithubClient) GetStatus(statusUrl string) (StatusBody, error) {
+	target, err := gh.getUrl(statusUrl)
+	if err != nil {
+		return StatusBody{}, err
+	}
+
+	req, err := http.NewRequest("GET", target.String(), nil)
+	if err != nil {
+		return StatusBody{}, err
+	}
+
+	gh.setHeaders(req)
+
+	fmt.Println("GET to", target.String())
+	data, err := gh.request(req)
+	if err != nil {
+		return StatusBody{}, err
+	}
+
+	status := StatusBody{}
+	if err = json.Unmarshal(data, &status); err != nil {
+		return status, err
+	}
+
+	return status, nil
+}
+
 func (gh *GithubClient) GetPullRequest(pullsUrl string) (PullRequest, error) {
 	target, err := gh.getUrl(pullsUrl)
 	if err != nil {

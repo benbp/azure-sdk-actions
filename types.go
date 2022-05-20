@@ -15,6 +15,8 @@ const (
 	CheckSuiteActionCompleted ActionType = "completed"
 
 	IssueCommentActionCreated ActionType = "created"
+	PullRequestActionOpened   ActionType = "opened"
+	PullRequestActionReOpened ActionType = "reopened"
 
 	CheckSuiteStatusRequested  CheckSuiteStatus = "requested"
 	CheckSuiteStatusInProgress CheckSuiteStatus = "in_progress"
@@ -156,6 +158,11 @@ func (ic *IssueCommentWebhook) GetPullsUrl() string {
 	return strings.ReplaceAll(ic.Repo.PullsUrl, "{/number}", fmt.Sprintf("/%d", ic.Issue.Number))
 }
 
+type PullRequestWebhook struct {
+	Action      ActionType  `json:"action"`
+	PullRequest PullRequest `json:"pull_request"`
+}
+
 func NewPullRequest(payload []byte) *PullRequest {
 	var pr PullRequest
 	if err := json.Unmarshal(payload, &pr); err != nil {
@@ -188,4 +195,15 @@ func NewIssueCommentWebhook(payload []byte) *IssueCommentWebhook {
 	}
 
 	return &ic
+}
+
+func NewPullRequestWebhook(payload []byte) *PullRequestWebhook {
+	var pr PullRequestWebhook
+	if err := json.Unmarshal(payload, &pr); err != nil {
+		return nil
+	}
+	if pr.PullRequest.Number == 0 {
+		return nil
+	}
+	return &pr
 }

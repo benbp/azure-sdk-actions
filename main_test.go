@@ -14,6 +14,7 @@ import (
 type Payloads struct {
 	CheckSuiteEvent     []byte
 	IssueCommentEvent   []byte
+	PullRequestEvent    []byte
 	PullRequestResponse []byte
 	CheckSuiteResponse  []byte
 	StatusResponse      []byte
@@ -27,6 +28,10 @@ func getPayloads() (Payloads, error) {
 		return Payloads{}, err
 	}
 	payloads.IssueCommentEvent, err = ioutil.ReadFile("./testpayloads/issue_comment_event.json")
+	if err != nil {
+		return Payloads{}, err
+	}
+	payloads.PullRequestEvent, err = ioutil.ReadFile("./testpayloads/pull_request_event.json")
 	if err != nil {
 		return Payloads{}, err
 	}
@@ -89,6 +94,11 @@ type testCommentCaseConfig struct {
 	PostStatus    bool
 }
 
+type testPullRequestCaseConfig struct {
+	ShouldUpdate   bool
+	StatusResponse StatusBody
+}
+
 func TestComments(t *testing.T) {
 	payloads, err := getPayloads()
 	assert.NoError(t, err)
@@ -115,6 +125,64 @@ func TestComments(t *testing.T) {
 	}
 	for _, tc := range cases {
 		testCommentCase(t, tc, payloads, ic, pr)
+	}
+}
+
+func TestPullRequest(t *testing.T) {
+	payloads, err := getPayloads()
+	assert.NoError(t, err)
+	pr := NewPullRequestWebhook(payloads.PullRequestEvent)
+	assert.NotEmpty(t, pr)
+
+	tt := []testPullRequestCaseConfig{
+		testPullRequestCaseConfig{
+			false, StatusBody{Context: "ignore", State: CommitStateSuccess},
+		},
+		testPullRequestCaseConfig{
+			true, StatusBody{Context: CommitStatusContext, State: CommitStateSuccess},
+		},
+		testPullRequestCaseConfig{
+			true, StatusBody{Context: CommitStatusContext, State: CommitStatePending},
+		},
+	}
+
+	for _, tc := range tt {
+		postedStatus := false
+
+		fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assert.Contains(t, pr.PullRequest.StatusesUrl, r.URL.String())
+			assert.Contains(t, r.URL.Path, pr.PullRequest.Head.Sha)
+
+			if !strings.Contains(pr.PullRequest.StatusesUrl, r.URL.String()) {
+				assert.Fail(t, "Unexpected request to "+r.URL.String())
+			}
+			if r.Method == "POST" && tc.ShouldUpdate {
+				postedStatus = true
+				status := getBody(t, r)
+				assert.Equal(t, status.State, tc.StatusResponse.State)
+				assert.Equal(t, status.Context, CommitStatusContext)
+
+				response, err := json.Marshal(status)
+				assert.NoError(t, err)
+				w.Write(response)
+			} else if r.Method == "GET" {
+				response, err := json.Marshal(tc.StatusResponse)
+				assert.NoError(t, err)
+				w.Write(response)
+			} else {
+				status := getBody(t, r)
+				statusStr := fmt.Sprintf("%v", status)
+				assert.Fail(t, "Unexpected method "+r.Method+" to "+r.URL.String(), " - "+statusStr)
+			}
+		})
+		server := httptest.NewServer(fn)
+		defer server.Close()
+
+		gh, err := NewGithubClient(server.URL, "", "octocoders-linter")
+		assert.NoError(t, err)
+		err = handleEvent(gh, payloads.PullRequestEvent)
+		assert.NoError(t, err)
+		assert.Equal(t, tc.ShouldUpdate, postedStatus, "Should POST status")
 	}
 }
 

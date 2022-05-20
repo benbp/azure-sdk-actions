@@ -69,6 +69,13 @@ func handleEvent(gh *GithubClient, payload []byte) error {
 		return nil
 	}
 
+	if cs := NewPullRequestWebhook(payload); cs != nil {
+		fmt.Println("Handling pull request event.")
+		err := handlePullRequest(gh, cs)
+		handleError(err)
+		return nil
+	}
+
 	return errors.New("Error: Invalid or unsupported payload body.")
 }
 
@@ -168,6 +175,27 @@ func handleCheckSuite(gh *GithubClient, cs *CheckSuiteWebhook) error {
 		fmt.Println("Skipping check suite with conclusion: ", cs.CheckSuite.Conclusion)
 		return nil
 	}
+}
+
+func handlePullRequest(gh *GithubClient, pr *PullRequestWebhook) error {
+	if pr.Action != PullRequestActionOpened && pr.Action != PullRequestActionReOpened {
+		fmt.Println("Skipping pull request", pr.Action, "event.")
+		return nil
+	}
+	currentStatus, err := gh.GetStatus(pr.PullRequest.StatusesUrl)
+	if err != nil {
+		return err
+	}
+	// TODO: is status actually going to be empty, or conflicting (array statuses?)
+	if currentStatus.Context != CommitStatusContext {
+		fmt.Println("Status with context", "'"+currentStatus.Context+"'", "is not a check enforcer status. Skipping target_url update.")
+		return nil
+	}
+	// Update target_url in status so there is a clickable "Details" link in the status check
+	// on the github UI. By default the status check gets filled in by github when marked as a
+	// branch protection rule.
+	currentStatus.TargetUrl = CommitStatusContext
+	return gh.SetStatus(pr.PullRequest.StatusesUrl, currentStatus)
 }
 
 func help() {
