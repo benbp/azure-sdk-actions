@@ -200,7 +200,7 @@ func testCommentCase(t *testing.T, tc testCommentCaseConfig, payloads Payloads, 
 			response = payloads.PullRequestResponse
 		} else if strings.Contains(pr.GetCheckSuiteUrl(), r.URL.String()) {
 			response = []byte(csResponse)
-		} else if strings.Contains(pr.GetStatusesUrl(), r.URL.String()) {
+		} else if strings.Contains(pr.StatusesUrl, r.URL.String()) {
 			response = payloads.StatusResponse
 			assert.Equal(t, "POST", r.Method)
 			status := getBody(t, r)
