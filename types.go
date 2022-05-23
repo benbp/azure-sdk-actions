@@ -156,6 +156,7 @@ func (ic *IssueCommentWebhook) GetPullsUrl() string {
 
 type PullRequestWebhook struct {
 	Action      ActionType  `json:"action"`
+	Number      int         `json:"number"`
 	PullRequest PullRequest `json:"pull_request"`
 }
 
@@ -198,7 +199,7 @@ func NewPullRequestWebhook(payload []byte) *PullRequestWebhook {
 	if err := json.Unmarshal(payload, &pr); err != nil {
 		return nil
 	}
-	if pr.PullRequest.Number == 0 {
+	if pr.Number == 0 {
 		return nil
 	}
 	return &pr

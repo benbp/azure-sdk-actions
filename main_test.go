@@ -94,11 +94,6 @@ type testCommentCaseConfig struct {
 	PostStatus    bool
 }
 
-type testPullRequestCaseConfig struct {
-	ShouldUpdate   bool
-	StatusResponse StatusBody
-}
-
 func TestComments(t *testing.T) {
 	payloads, err := getPayloads()
 	assert.NoError(t, err)
@@ -126,6 +121,11 @@ func TestComments(t *testing.T) {
 	for _, tc := range cases {
 		testCommentCase(t, tc, payloads, ic, pr)
 	}
+}
+
+type testPullRequestCaseConfig struct {
+	ShouldUpdate   bool
+	StatusResponse StatusBody
 }
 
 func TestPullRequest(t *testing.T) {
