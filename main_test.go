@@ -31,7 +31,7 @@ func getPayloads() (Payloads, error) {
 	if err != nil {
 		return Payloads{}, err
 	}
-	payloads.PullRequestEvent, err = ioutil.ReadFile("./testpayloads/pull_request_event.json")
+	payloads.PullRequestEvent, err = ioutil.ReadFile("./testpayloads/pull_request_target_event.json")
 	if err != nil {
 		return Payloads{}, err
 	}
@@ -125,7 +125,8 @@ func TestComments(t *testing.T) {
 
 type testPullRequestCaseConfig struct {
 	ShouldUpdate   bool
-	StatusResponse StatusBody
+	ExpectedStatus CommitState
+	StatusResponse []StatusBody
 }
 
 func TestPullRequest(t *testing.T) {
@@ -135,14 +136,39 @@ func TestPullRequest(t *testing.T) {
 	assert.NotEmpty(t, pr)
 
 	tt := []testPullRequestCaseConfig{
+		// Test adding new status if one does not exist (github will put a placeholder branch protection
+		// status in the UI but it will not have a details link to the docs, or a status object in the API response).
 		testPullRequestCaseConfig{
-			false, StatusBody{Context: "ignore", State: CommitStateSuccess},
+			true, CommitStatePending, []StatusBody{
+				StatusBody{Context: "ignore"},
+			},
 		},
+		// Test handle pre-existing status with succeeded state
 		testPullRequestCaseConfig{
-			true, StatusBody{Context: CommitStatusContext, State: CommitStateSuccess},
+			true, CommitStateSuccess, []StatusBody{
+				StatusBody{Context: CommitStatusContext, State: CommitStateSuccess},
+			},
 		},
+		// Test handle pre-existing status with failed state
 		testPullRequestCaseConfig{
-			true, StatusBody{Context: CommitStatusContext, State: CommitStatePending},
+			true, CommitStateFailure, []StatusBody{
+				StatusBody{Context: CommitStatusContext, State: CommitStateFailure},
+			},
+		},
+		// Test handle pre-existing status with pending state
+		testPullRequestCaseConfig{
+			true, CommitStatePending, []StatusBody{
+				StatusBody{Context: CommitStatusContext, State: CommitStatePending},
+			},
+		},
+		// Test handle multiple statuses
+		testPullRequestCaseConfig{
+			true, CommitStateSuccess, []StatusBody{
+				StatusBody{Context: "ignore1"},
+				StatusBody{Context: "ignore2"},
+				StatusBody{Context: CommitStatusContext, State: CommitStateSuccess},
+				StatusBody{Context: "ignore3"},
+			},
 		},
 	}
 
@@ -159,7 +185,7 @@ func TestPullRequest(t *testing.T) {
 			if r.Method == "POST" && tc.ShouldUpdate {
 				postedStatus = true
 				status := getBody(t, r)
-				assert.Equal(t, status.State, tc.StatusResponse.State)
+				assert.Equal(t, status.State, tc.ExpectedStatus)
 				assert.Equal(t, status.Context, CommitStatusContext)
 
 				response, err := json.Marshal(status)

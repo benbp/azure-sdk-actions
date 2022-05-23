@@ -75,15 +75,15 @@ func (gh *GithubClient) SetStatus(statusUrl string, status StatusBody) error {
 	return nil
 }
 
-func (gh *GithubClient) GetStatus(statusUrl string) (StatusBody, error) {
+func (gh *GithubClient) GetCheckEnforcerStatus(statusUrl string) (*StatusBody, error) {
 	target, err := gh.getUrl(statusUrl)
 	if err != nil {
-		return StatusBody{}, err
+		return nil, err
 	}
 
 	req, err := http.NewRequest("GET", target.String(), nil)
 	if err != nil {
-		return StatusBody{}, err
+		return nil, err
 	}
 
 	gh.setHeaders(req)
@@ -91,15 +91,21 @@ func (gh *GithubClient) GetStatus(statusUrl string) (StatusBody, error) {
 	fmt.Println("GET to", target.String())
 	data, err := gh.request(req)
 	if err != nil {
-		return StatusBody{}, err
+		return nil, err
 	}
 
-	status := StatusBody{}
-	if err = json.Unmarshal(data, &status); err != nil {
-		return status, err
+	statuses := []StatusBody{}
+	if err = json.Unmarshal(data, &statuses); err != nil {
+		return nil, err
 	}
 
-	return status, nil
+	for _, status := range statuses {
+		if status.Context == CommitStatusContext {
+			return &status, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func (gh *GithubClient) GetPullRequest(pullsUrl string) (PullRequest, error) {
