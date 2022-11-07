@@ -90,10 +90,11 @@ type App struct {
 }
 
 type Issue struct {
-	Url    string `json:"url"`
-	Number int    `json:"number"`
-	Title  string `json:"title"`
-	State  string `json:"state"`
+	Url         string `json:"url"`
+	Number      int    `json:"number"`
+	Title       string `json:"title"`
+	State       string `json:"state"`
+	CommentsUrl string `json:"comments_url"`
 }
 
 type IssueComment struct {
@@ -107,6 +108,10 @@ type CheckSuiteWebhook struct {
 	Action     ActionType `json:"action"`
 	CheckSuite CheckSuite `json:"check_suite"`
 	Repo       Repo       `json:"repository"`
+}
+
+func IsCheckSuiteNoMatch(conclusion CheckSuiteConclusion) bool {
+	return conclusion == ""
 }
 
 func IsCheckSuiteSucceeded(conclusion CheckSuiteConclusion) bool {
@@ -150,6 +155,10 @@ func (pr *PullRequest) GetCheckSuiteUrl() string {
 
 func (ic *IssueCommentWebhook) GetPullsUrl() string {
 	return strings.ReplaceAll(ic.Repo.PullsUrl, "{/number}", fmt.Sprintf("/%d", ic.Issue.Number))
+}
+
+func (ic *IssueCommentWebhook) GetCommentsUrl() string {
+	return ic.Issue.CommentsUrl
 }
 
 func NewPullRequest(payload []byte) *PullRequest {

@@ -131,11 +131,11 @@ func getCheckEnforcerCommand(comment string) string {
 	matches := re.FindStringSubmatch(comment)
 	if len(matches) >= 1 {
 		command := matches[1]
-		if command == "override" || command == "evaluate" || command == "reset" {
+		if command == "override" || command == "evaluate" || command == "reset" || command == "help" {
 			fmt.Println("Parsed check enforcer command", command)
 			return command
 		}
-		fmt.Println("Supported commands are 'override', 'evaluate', or 'reset' but found:", command)
+		fmt.Println("Supported commands are 'override', 'evaluate', 'reset', or 'help' but found:", command)
 		return command
 	} else {
 		fmt.Println("Command does not match format '/check-enforcer [override|reset|evaluate]'")
@@ -162,7 +162,15 @@ func handleComment(gh *GithubClient, ic *IssueCommentWebhook) error {
 		_, conclusion, err := gh.GetCheckSuiteStatus(pr)
 		handleError(err)
 
-		if IsCheckSuiteSucceeded(conclusion) {
+		if IsCheckSuiteNoMatch(conclusion) {
+			body := `Check Enforcer evaluate was requested, but there are no Azure Pipelines triggered for this pull request.
+					 If you are initializing a new service, follow the
+					 [pipeline setup docs]( https://dev.azure.com/azure-sdk/internal/_wiki/wikis/internal.wiki/55/Pipelines?anchor=creating-pipelines-for-new-services).
+					 If no Azure Pipelines is correct, run '/check-enforcer override'.
+   					 For help using check enforcer, see https://aka.ms/azsdk/checkenforcer`
+			err := gh.CreateIssueComment(ic.GetCommentsUrl(), body)
+			handleError(err)
+		} else if IsCheckSuiteSucceeded(conclusion) {
 			return gh.SetStatus(pr.StatusesUrl, newSucceededBody())
 		} else if IsCheckSuiteFailed(conclusion) {
 			// Mark as pending with link to action run even on failure, to maintain
@@ -171,9 +179,13 @@ func handleComment(gh *GithubClient, ic *IssueCommentWebhook) error {
 		} else {
 			return gh.SetStatus(pr.StatusesUrl, newPendingBody())
 		}
-	} else {
-		return nil
+	} else if command == "help" {
+		body := "For help using check enforcer, see https://aka.ms/azsdk/checkenforcer"
+		err := gh.CreateIssueComment(ic.GetCommentsUrl(), body)
+		handleError(err)
 	}
+
+	return nil
 }
 
 func handleCheckSuite(gh *GithubClient, cs *CheckSuiteWebhook) error {
