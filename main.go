@@ -167,6 +167,8 @@ func handleComment(gh *GithubClient, ic *IssueCommentWebhook) error {
 			handleError(err)
 			err = gh.CreateIssueComment(ic.GetCommentsUrl(), string(noPipelineText))
 			handleError(err)
+			err = gh.SetStatus(pr.StatusesUrl, newPendingBody())
+			handleError(err)
 		} else if IsCheckSuiteSucceeded(conclusion) {
 			return gh.SetStatus(pr.StatusesUrl, newSucceededBody())
 		} else if IsCheckSuiteFailed(conclusion) {

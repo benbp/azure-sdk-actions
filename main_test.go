@@ -114,7 +114,8 @@ func TestComments(t *testing.T) {
 		{"/check-enforcer evaluate", CheckSuiteConclusionTimedOut, CommitStatePending, true, false},
 		{"/check-enforcer evaluate", CheckSuiteConclusionNeutral, CommitStatePending, true, false},
 		{"/check-enforcer evaluate", CheckSuiteConclusionStale, CommitStatePending, true, false},
-		{"/check-enforcer evaluate", "", "", false, true},
+		{"/check-enforcer evaluate", "", CommitStatePending, true, true},
+		{"/check-enforcer reset", "", CommitStatePending, true, true},
 		{"/check-enforcer help", "", "", false, true},
 		{"/check-enforcerevaluate", "", "", false, false},
 		{"/check-enforcer foobar", "", "", false, true},
@@ -153,7 +154,7 @@ func testCommentCase(t *testing.T, tc testCommentCaseConfig, payloads Payloads, 
 			assert.Equal(t, "POST", r.Method, fmt.Sprintf("POST new comment for command '%s'", tc.Comment))
 			body, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
-			if tc.Comment == "/check-enforcer evaluate" {
+			if tc.Comment == "/check-enforcer evaluate" || tc.Comment == "/check-enforcer reset" {
 				noPipelineText, err := ioutil.ReadFile("./comments/no_pipelines.txt")
 				assert.NoError(t, err)
 				expectedBody, err := NewIssueCommentBody(string(noPipelineText))
