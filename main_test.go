@@ -114,10 +114,9 @@ func TestComments(t *testing.T) {
 		{"/check-enforcer evaluate", CheckSuiteConclusionTimedOut, CommitStatePending, true, false},
 		{"/check-enforcer evaluate", CheckSuiteConclusionNeutral, CommitStatePending, true, false},
 		{"/check-enforcer evaluate", CheckSuiteConclusionStale, CommitStatePending, true, false},
-		{"/check-enforcer evaluate", CheckSuiteConclusionStale, "", true, true},
-		{"/check-enforcer evaluate", "", CommitStatePending, true, false},
+		{"/check-enforcer evaluate", "", "", false, true},
 		{"/check-enforcer help", "", "", false, true},
-		{"/check-enforcerevaluate", "", "", false, true},
+		{"/check-enforcerevaluate", "", "", false, false},
 		{"/check-enforcer foobar", "", "", false, true},
 		{"/check-enforcer foobar bar bar", "", "", false, true},
 		{"/azp run", "", "", false, false},
@@ -155,9 +154,9 @@ func testCommentCase(t *testing.T, tc testCommentCaseConfig, payloads Payloads, 
 			body, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			if tc.Comment == "/check-enforcer evaluate" {
-				assert.Equal(t, NoPipelineText, string(body), "Help Text Body")
+				assert.Equal(t, NoPipelineText, string(body), fmt.Sprintf("Comment body for command '%s'", tc.Comment))
 			} else {
-				assert.Equal(t, HelpText, string(body), "Help Text Body")
+				assert.Equal(t, HelpText, string(body), fmt.Sprintf("Comment body for command '%s'", tc.Comment))
 			}
 			postedComment = true
 		} else {
