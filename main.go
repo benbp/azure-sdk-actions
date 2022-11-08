@@ -165,7 +165,7 @@ func handleComment(gh *GithubClient, ic *IssueCommentWebhook) error {
 		if IsCheckSuiteNoMatch(conclusion) {
 			noPipelineText, err := ioutil.ReadFile("./comments/no_pipelines.txt")
 			handleError(err)
-			err = gh.CreateIssueComment(ic.GetCommentsUrl(), noPipelineText)
+			err = gh.CreateIssueComment(ic.GetCommentsUrl(), string(noPipelineText))
 			handleError(err)
 		} else if IsCheckSuiteSucceeded(conclusion) {
 			return gh.SetStatus(pr.StatusesUrl, newSucceededBody())
@@ -179,7 +179,7 @@ func handleComment(gh *GithubClient, ic *IssueCommentWebhook) error {
 	} else {
 		helpText, err := ioutil.ReadFile("./comments/help.txt")
 		handleError(err)
-		err = gh.CreateIssueComment(ic.GetCommentsUrl(), helpText)
+		err = gh.CreateIssueComment(ic.GetCommentsUrl(), string(helpText))
 		handleError(err)
 	}
 

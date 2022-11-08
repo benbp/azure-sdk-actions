@@ -137,7 +137,7 @@ func (gh *GithubClient) GetCheckSuiteStatus(pr PullRequest) (CheckSuiteStatus, C
 	return "", "", nil
 }
 
-func (gh *GithubClient) CreateIssueComment(commentsUrl string, body []byte) error {
+func (gh *GithubClient) CreateIssueComment(commentsUrl string, body string) error {
 	target, err := gh.getUrl(commentsUrl)
 	if err != nil {
 		return nil
@@ -145,7 +145,7 @@ func (gh *GithubClient) CreateIssueComment(commentsUrl string, body []byte) erro
 
 	fmt.Println("Creating new issue comment with contents:")
 	fmt.Println("=====================================")
-	fmt.Println(string(body))
+	fmt.Println(body)
 	fmt.Println("=====================================")
 
 	reqBody, err := NewIssueCommentBody(body)

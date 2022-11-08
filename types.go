@@ -165,8 +165,8 @@ func (ic *IssueCommentWebhook) GetCommentsUrl() string {
 	return ic.Issue.CommentsUrl
 }
 
-func NewIssueCommentBody(body []byte) ([]byte, error) {
-	jsonBody, err := json.Marshal(IssueCommentBody{string(body)})
+func NewIssueCommentBody(body string) ([]byte, error) {
+	jsonBody, err := json.Marshal(IssueCommentBody{body})
 	if err != nil {
 		return nil, err
 	}
