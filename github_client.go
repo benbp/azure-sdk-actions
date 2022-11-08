@@ -145,7 +145,7 @@ func (gh *GithubClient) CreateIssueComment(commentsUrl string, body []byte) erro
 
 	fmt.Println("Creating new issue comment with contents:")
 	fmt.Println("=====================================")
-	fmt.Println(body)
+	fmt.Println(string(body))
 	fmt.Println("=====================================")
 
 	reqBody, err := NewIssueCommentBody(body)
