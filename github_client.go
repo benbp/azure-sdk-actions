@@ -137,7 +137,7 @@ func (gh *GithubClient) GetCheckSuiteStatus(pr PullRequest) (CheckSuiteStatus, C
 	return "", "", nil
 }
 
-func (gh *GithubClient) CreateIssueComment(commentsUrl string, body string) error {
+func (gh *GithubClient) CreateIssueComment(commentsUrl string, body []byte) error {
 	target, err := gh.getUrl(commentsUrl)
 	if err != nil {
 		return nil
@@ -148,7 +148,7 @@ func (gh *GithubClient) CreateIssueComment(commentsUrl string, body string) erro
 	fmt.Println(body)
 	fmt.Println("=====================================")
 
-	reqBody, err := json.Marshal(IssueCommentBody{body})
+	reqBody, err := NewIssueCommentBody(body)
 	if err != nil {
 		return err
 	}

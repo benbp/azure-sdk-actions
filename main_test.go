@@ -154,9 +154,17 @@ func testCommentCase(t *testing.T, tc testCommentCaseConfig, payloads Payloads, 
 			body, err := ioutil.ReadAll(r.Body)
 			assert.NoError(t, err)
 			if tc.Comment == "/check-enforcer evaluate" {
-				assert.Equal(t, NoPipelineText, string(body), fmt.Sprintf("Comment body for command '%s'", tc.Comment))
+				noPipelineText, err := ioutil.ReadFile("./comments/no_pipelines.txt")
+				assert.NoError(t, err)
+				expectedBody, err := NewIssueCommentBody(noPipelineText)
+				assert.NoError(t, err)
+				assert.Equal(t, string(expectedBody), string(body), fmt.Sprintf("Comment body for command '%s'", tc.Comment))
 			} else {
-				assert.Equal(t, HelpText, string(body), fmt.Sprintf("Comment body for command '%s'", tc.Comment))
+				helpText, err := ioutil.ReadFile("./comments/help.txt")
+				assert.NoError(t, err)
+				expectedBody, err := NewIssueCommentBody(helpText)
+				assert.NoError(t, err)
+				assert.Equal(t, string(expectedBody), string(body), fmt.Sprintf("Comment body for command '%s'", tc.Comment))
 			}
 			postedComment = true
 		} else {

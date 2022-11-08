@@ -13,20 +13,6 @@ import (
 const GithubTokenKey = "GITHUB_TOKEN"
 const CommitStatusContext = "https://aka.ms/azsdk/checkenforcer"
 const AzurePipelinesAppName = "Azure Pipelines"
-const HelpText = `For help using check enforcer, see https://aka.ms/azsdk/checkenforcer
-  Available commands:
-    - &#96;/check-enforcer evaluate&#96; - Re-evaluate existing pipeline statuses for PR
-    - &#96;/check-enforcer override&#96; - Ignore any pipeline missing or failed statuses for PR
-    - &#96;/check-enforcer help&#96; - Add this comment
-
-  If you are initializing a new service, follow the
-  [pipeline setup docs]( https://dev.azure.com/azure-sdk/internal/_wiki/wikis/internal.wiki/55/Pipelines?anchor=creating-pipelines-for-new-services).
-  If no Azure Pipelines are desired, run '/check-enforcer override'.`
-const NoPipelineText = `Check Enforcer evaluate was requested, but there are no Azure Pipelines triggered for this pull request.
- If you are initializing a new service, follow the
- [pipeline setup docs]( https://dev.azure.com/azure-sdk/internal/_wiki/wikis/internal.wiki/55/Pipelines?anchor=creating-pipelines-for-new-services).
- If no Azure Pipelines are desired, run '/check-enforcer override'.
- For help using check enforcer, see https://aka.ms/azsdk/checkenforcer `
 
 func newPendingBody() StatusBody {
 	return StatusBody{
@@ -177,7 +163,9 @@ func handleComment(gh *GithubClient, ic *IssueCommentWebhook) error {
 		handleError(err)
 
 		if IsCheckSuiteNoMatch(conclusion) {
-			err := gh.CreateIssueComment(ic.GetCommentsUrl(), NoPipelineText)
+			noPipelineText, err := ioutil.ReadFile("./comments/no_pipelines.txt")
+			handleError(err)
+			err = gh.CreateIssueComment(ic.GetCommentsUrl(), noPipelineText)
 			handleError(err)
 		} else if IsCheckSuiteSucceeded(conclusion) {
 			return gh.SetStatus(pr.StatusesUrl, newSucceededBody())
@@ -189,7 +177,9 @@ func handleComment(gh *GithubClient, ic *IssueCommentWebhook) error {
 			return gh.SetStatus(pr.StatusesUrl, newPendingBody())
 		}
 	} else {
-		err := gh.CreateIssueComment(ic.GetCommentsUrl(), HelpText)
+		helpText, err := ioutil.ReadFile("./comments/help.txt")
+		handleError(err)
+		err = gh.CreateIssueComment(ic.GetCommentsUrl(), helpText)
 		handleError(err)
 	}
 

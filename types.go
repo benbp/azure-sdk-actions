@@ -105,7 +105,7 @@ type IssueComment struct {
 }
 
 type IssueCommentBody struct {
-	Body string `json:"body"`
+	Body []byte `json:"body"`
 }
 
 type CheckSuiteWebhook struct {
@@ -163,6 +163,14 @@ func (ic *IssueCommentWebhook) GetPullsUrl() string {
 
 func (ic *IssueCommentWebhook) GetCommentsUrl() string {
 	return ic.Issue.CommentsUrl
+}
+
+func NewIssueCommentBody(body []byte) ([]byte, error) {
+	jsonBody, err := json.Marshal(IssueCommentBody{body})
+	if err != nil {
+		return nil, err
+	}
+	return jsonBody, nil
 }
 
 func NewPullRequest(payload []byte) *PullRequest {
