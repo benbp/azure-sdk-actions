@@ -104,6 +104,10 @@ type IssueComment struct {
 	Body    string `json:"body"`
 }
 
+type IssueCommentBody struct {
+	Body string `json:"body"`
+}
+
 type CheckSuiteWebhook struct {
 	Action     ActionType `json:"action"`
 	CheckSuite CheckSuite `json:"check_suite"`

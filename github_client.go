@@ -148,9 +148,12 @@ func (gh *GithubClient) CreateIssueComment(commentsUrl string, body string) erro
 	fmt.Println(body)
 	fmt.Println("=====================================")
 
-	jsonBody := bytes.NewBufferString(fmt.Sprintf("{\"body\": \"%s\"}", body))
+	reqBody, err := json.Marshal(IssueCommentBody{body})
+	if err != nil {
+		return err
+	}
 
-	req, err := http.NewRequest("POST", target.String(), jsonBody)
+	req, err := http.NewRequest("POST", target.String(), bytes.NewReader(reqBody))
 	if err != nil {
 		return nil
 	}
