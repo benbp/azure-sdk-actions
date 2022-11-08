@@ -143,12 +143,14 @@ func (gh *GithubClient) CreateIssueComment(commentsUrl string, body string) erro
 		return nil
 	}
 
-	fmt.Println("Creating new issue comment with body:")
+	fmt.Println("Creating new issue comment with contents:")
 	fmt.Println("=====================================")
 	fmt.Println(body)
 	fmt.Println("=====================================")
 
-	req, err := http.NewRequest("POST", target.String(), bytes.NewBufferString(body))
+	jsonBody := bytes.NewBufferString(fmt.Sprintf("{\"body\": \"%s\"}", body))
+
+	req, err := http.NewRequest("POST", target.String(), jsonBody)
 	if err != nil {
 		return nil
 	}
