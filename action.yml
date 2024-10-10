@@ -19,4 +19,4 @@ runs:
       if: always()
       with:
         name: event
-        path: ${{ env.GITHUB_EVENT_PATH }}
+        path: ${{ vars.GITHUB_EVENT_PATH }}
