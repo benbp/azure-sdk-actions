@@ -9,7 +9,7 @@ runs:
   steps:
     - run: |
         cd $GITHUB_ACTION_PATH
-        go run . $GITHUB_EVENT_PATH
+        go run . ${{ github.event_path }}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
@@ -19,4 +19,4 @@ runs:
       if: always()
       with:
         name: event
-        path: ${{ vars.GITHUB_EVENT_PATH }}
+        path: ${{ github.event_path }}
