@@ -1,3 +1,4 @@
+TEST
 # Azure SDK Github Actions
 
 This repository contains common github actions definitions for use within the Azure SDK repositories.
